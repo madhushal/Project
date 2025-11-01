@@ -1,0 +1,157 @@
+'use client'
+
+import { useState } from 'react'
+import { Camera, Plus, Zap } from 'lucide-react'
+import { useCart, type CartItem } from '@/context/cart-context'
+
+const SAMPLE_PRODUCTS = [
+  {
+    id: '1',
+    name: 'Wireless Headphones',
+    price: 79.99,
+    image: '/placeholder.svg?height=200&width=200',
+    category: 'Electronics',
+  },
+  {
+    id: '2',
+    name: 'Premium Coffee',
+    price: 12.99,
+    image: '/placeholder.svg?height=200&width=200',
+    category: 'Food',
+  },
+  {
+    id: '3',
+    name: 'Organic Tea Set',
+    price: 24.99,
+    image: '/placeholder.svg?height=200&width=200',
+    category: 'Food',
+  },
+  {
+    id: '4',
+    name: 'Phone Stand',
+    price: 15.99,
+    image: '/placeholder.svg?height=200&width=200',
+    category: 'Accessories',
+  },
+  {
+    id: '5',
+    name: 'USB-C Cable',
+    price: 9.99,
+    image: '/placeholder.svg?height=200&width=200',
+    category: 'Accessories',
+  },
+  {
+    id: '6',
+    name: 'Laptop Bag',
+    price: 49.99,
+    image: '/placeholder.svg?height=200&width=200',
+    category: 'Bags',
+  },
+]
+
+export default function ProductDetector() {
+  const { addItem } = useCart()
+  const [scanning, setScanning] = useState(false)
+  const [lastDetected, setLastDetected] = useState<string | null>(null)
+
+  const handleAddProduct = (product: (typeof SAMPLE_PRODUCTS)[0]) => {
+    const cartItem: CartItem = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image: product.image,
+    }
+    addItem(cartItem)
+    setLastDetected(product.id)
+    setTimeout(() => setLastDetected(null), 2000)
+  }
+
+  const simulateScan = () => {
+    setScanning(true)
+    setTimeout(() => {
+      const randomProduct =
+        SAMPLE_PRODUCTS[Math.floor(Math.random() * SAMPLE_PRODUCTS.length)]
+      handleAddProduct(randomProduct)
+      setScanning(false)
+    }, 1500)
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Scanner Section */}
+      <div className="card bg-white">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <Camera className="w-6 h-6 text-indigo-600" />
+            AI Product Detection
+          </h2>
+          <span className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-medium">
+            Real-time Camera
+          </span>
+        </div>
+
+        {/* Camera Simulator */}
+        <div className="bg-gradient-to-br from-indigo-900 to-indigo-700 rounded-lg h-64 flex items-center justify-center mb-4 overflow-hidden relative">
+          {scanning ? (
+            <div className="text-center">
+              <div className="inline-block">
+                <div className="w-16 h-16 border-4 border-transparent border-t-pink-400 border-r-pink-400 rounded-full animate-spin mb-4"></div>
+              </div>
+              <p className="text-white font-semibold">Scanning Product...</p>
+            </div>
+          ) : (
+            <div className="text-center">
+              <div className="w-32 h-32 border-2 border-dashed border-indigo-400 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                <Zap className="w-12 h-12 text-indigo-300" />
+              </div>
+              <p className="text-indigo-200">Point camera at product barcode</p>
+            </div>
+          )}
+        </div>
+
+        <button
+          onClick={simulateScan}
+          disabled={scanning}
+          className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          <Camera className="w-5 h-5" />
+          {scanning ? 'Scanning...' : 'Simulate Scan'}
+        </button>
+      </div>
+
+      {/* Product Grid */}
+      <div className="card bg-white">
+        <h3 className="text-lg font-bold text-gray-800 mb-4">Browse Products</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {SAMPLE_PRODUCTS.map((product) => (
+            <div
+              key={product.id}
+              className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
+                lastDetected === product.id
+                  ? 'border-green-400 bg-green-50 scale-105'
+                  : 'border-gray-200 hover:border-indigo-300'
+              }`}
+              onClick={() => handleAddProduct(product)}
+            >
+              <img
+                src={product.image || "/placeholder.svg"}
+                alt={product.name}
+                className="w-full h-24 object-cover rounded mb-2"
+              />
+              <p className="text-xs font-medium text-gray-700 line-clamp-2">
+                {product.name}
+              </p>
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-sm font-bold text-indigo-600">
+                  ${product.price}
+                </span>
+                <Plus className="w-4 h-4 text-indigo-600" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
