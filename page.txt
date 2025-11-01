@@ -1,0 +1,33 @@
+'use client'
+
+import { useState } from 'react'
+import { CartProvider } from '@/context/cart-context'
+import CheckinScreen from '@/components/checkin-screen'
+import ShoppingInterface from '@/components/shopping-interface'
+
+export default function Home() {
+  const [screen, setScreen] = useState<'checkin' | 'shopping'>('checkin')
+  const [customerId, setCustomerId] = useState<string>('')
+
+  const handleCheckIn = (id: string) => {
+    setCustomerId(id)
+    setScreen('shopping')
+  }
+
+  const handleExit = () => {
+    setCustomerId('')
+    setScreen('checkin')
+  }
+
+  return (
+    <CartProvider>
+      <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50">
+        {screen === 'checkin' ? (
+          <CheckinScreen onCheckIn={handleCheckIn} />
+        ) : (
+          <ShoppingInterface customerId={customerId} onExit={handleExit} />
+        )}
+      </main>
+    </CartProvider>
+  )
+}
