@@ -1,0 +1,68 @@
+'use client'
+
+import { useState } from 'react'
+import { LogOut, ShoppingCart, Package } from 'lucide-react'
+import ProductDetector from './product-detector'
+import CartSummary from './cart-summary'
+import InventoryTracker from './inventory-tracker'
+import CheckoutModal from './checkout-modal'
+
+interface ShoppingInterfaceProps {
+  customerId: string
+  onExit: () => void
+}
+
+export default function ShoppingInterface({
+  customerId,
+  onExit,
+}: ShoppingInterfaceProps) {
+  const [showCheckout, setShowCheckout] = useState(false)
+
+  return (
+    <div className="min-h-screen">
+      {/* Header */}
+      <header className="bg-gradient-to-r from-indigo-600 to-pink-600 text-white shadow-lg sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Package className="w-6 h-6" />
+              RetailVision
+            </h1>
+            <p className="text-indigo-100 text-sm">Customer ID: {customerId}</p>
+          </div>
+          <button
+            onClick={onExit}
+            className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            Exit Store
+          </button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Section - Product Detection & Inventory */}
+          <div className="lg:col-span-2 space-y-8">
+            <ProductDetector />
+            <InventoryTracker />
+          </div>
+
+          {/* Right Section - Cart */}
+          <div className="space-y-6">
+            <CartSummary onCheckout={() => setShowCheckout(true)} />
+          </div>
+        </div>
+      </div>
+
+      {/* Checkout Modal */}
+      {showCheckout && (
+        <CheckoutModal
+          customerId={customerId}
+          onClose={() => setShowCheckout(false)}
+        />
+      )}
+    </div>
+  )
+}
