@@ -1,0 +1,111 @@
+'use client'
+
+import { useState } from 'react'
+import { ChevronDown, Package, Clock } from 'lucide-react'
+import { Order } from '@/context/cart-context'
+
+interface OrderHistoryViewProps {
+  orders: Order[]
+}
+
+export default function OrderHistoryView({ orders }: OrderHistoryViewProps) {
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
+
+  if (orders.length === 0) {
+    return (
+      <div className="card bg-white text-center py-12">
+        <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <h3 className="text-lg font-semibold text-gray-800">No Orders Yet</h3>
+        <p className="text-gray-500 mt-1">Start shopping to see your order history</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <Package className="w-6 h-6 text-indigo-600" />
+        Order History
+      </h2>
+
+      <div className="space-y-3">
+        {orders.map((order) => (
+          <div key={order.id} className="card bg-white">
+            <button
+              onClick={() =>
+                setExpandedOrder(
+                  expandedOrder === order.id ? null : order.id
+                )
+              }
+              className="w-full flex items-center justify-between hover:bg-gray-50 p-4 rounded-lg transition-colors"
+            >
+              <div className="text-left">
+                <h3 className="font-semibold text-gray-800">{order.id}</h3>
+                <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                  <Clock className="w-4 h-4" />
+                  {new Date(order.timestamp).toLocaleDateString()} at{' '}
+                  {new Date(order.timestamp).toLocaleTimeString()}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="font-bold text-indigo-600">
+                  ${order.total.toFixed(2)}
+                </p>
+                <p className="text-xs text-green-600 font-medium mt-1">
+                  {order.status}
+                </p>
+              </div>
+              <ChevronDown
+                className={`w-5 h-5 text-gray-400 transition-transform ${
+                  expandedOrder === order.id ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+
+            {expandedOrder === order.id && (
+              <div className="border-t border-gray-200 p-4 space-y-3">
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-2">Items</h4>
+                  <div className="space-y-2">
+                    {order.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex justify-between text-sm text-gray-700 bg-gray-50 p-2 rounded"
+                      >
+                        <span>
+                          {item.name} x {item.quantity}
+                        </span>
+                        <span className="font-semibold">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-200 pt-3">
+                  <div className="flex justify-between text-sm text-gray-600 mb-1">
+                    <span>Subtotal:</span>
+                    <span>${order.subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>Tax:</span>
+                    <span>${order.tax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold text-indigo-600">
+                    <span>Total:</span>
+                    <span>${order.total.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 p-2 rounded text-sm text-gray-700">
+                  <p>Payment: {order.paymentMethod}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
